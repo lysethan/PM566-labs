@@ -249,5 +249,5 @@ For example, if we wanted to add a direct link the HTML page of lecture
 following:
 
 ``` md
-View week7-lab[here](https://ghcdn.rawgit.org/lysethan/PM566-labs/master/week7/week7-lab.html
+View week7-lab[here](https://ghcdn.rawgit.org/lysethan/PM566-labs/master/week7/week7-lab.html)
 ```
