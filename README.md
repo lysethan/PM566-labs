@@ -2,8 +2,8 @@
 This is the repo to store the PM566 lab submissions by liyongsh@usc.edu
 
 
-|   week   |    files  |     notes |
-| ---- | ---- | ---- |
+|   week   |    source  |     html_report | github_markdown report| notes|
+| ---- | ---- | ---- |----| ---- |
 |   week1   | |      |
 |   week2  |      |      |
 |   week3   |      |      |
