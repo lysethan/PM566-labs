@@ -1,0 +1,79 @@
+---
+title: "Lab 01: Hello R"
+author: "Yongsheng LI"
+date: "09/10/2020"
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+    fig_width: 6
+    fig_height: 6
+    theme: lumen
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse) 
+library(datasauRus)
+```
+## Exercise 1
+
+```{r}
+datasaurus_dozen %>% count(dataset)
+```
+1. How many rows hand how many columns does the `datasaurus_dozen` file have?    
+   There are 1846 rows and 3 columns in `datasaurus_dozen`
+
+2. What are the variables included in the data frame?
+
+- `dataset`: indicating which dataset the data are from.
+- `x`: standing for the x-values
+- `y`: standing for the y-values
+
+## Exercise 2
+
+```{r fig.height=4, fig.width=4}
+dino_data <- datasaurus_dozen %>% filter(dataset == "dino")
+ggplot(data = dino_data, mapping = aes(x = x, y = y)) + geom_point()
+dino_data %>% summarize(r = cor(x, y))
+```
+We can see the graph which plots the relationship between `y` and `x` in `dino` dataset. Apparently, the relationship between `y` and `x` is nonlinear. However, the correlation coefficient can still be calculated as -0.06447185. The correlation is nearly zero.
+
+## Exercise 3
+
+```{r fig.height=4, fig.width=4}
+star_data <- datasaurus_dozen %>% filter(dataset == "star")
+ggplot(data = star_data, mapping = aes(x = x, y = y)) + geom_point()
+star_data %>% summarize(r = cor(x, y))
+```
+We can see the graph which plots the relationship between `y` and `x` in `star` dataset. Apparently, the relationship between `y` and `x` is still nonlinear. It looks much like a star. The correlation coefficient is calculated as -0.0629611, which is very similar to the cofficient of the `dino` dataset.
+
+
+
+## Exercise 4
+
+```{r fig.height=4, fig.width=4}
+circle_data <- datasaurus_dozen %>% filter(dataset == "circle")
+ggplot(data = circle_data, mapping = aes(x = x, y = y)) + geom_point()
+star_data %>% summarize(r = cor(x, y))
+```
+We can see the graph which plots the relationship between `y` and `x` in `circle` dataset. Apparently, the relationship between `y` and `x` is still nonlinear. It looks much like a circle. The correlation coefficient is calculated as -0.0629611(the same as that of the `star` dataset), which is very similar to the cofficient of the `dino` dataset.
+## Exercise 5
+
+```{r fig.height=10, fig.width=6}
+ggplot(datasaurus_dozen, aes(x = x, y = y, color = dataset))+
+  geom_point()+
+  facet_wrap(~ dataset, ncol = 3) +
+  theme(legend.position = "none")
+datasaurus_dozen %>%
+  group_by(dataset) %>%
+  summarize(r = cor(x, y))
+```
+
+## Two more things
+1. **figure resize**: The global figure size is set as 5x5. And the figure size for each chunck is set according to the figure contents. For example, the last figure are set as 6x10 to accommodate the arrangement of the subgraphs.
+2. **highlight style**: The highlight style is set as `lumen`, which appears in yaml section.
