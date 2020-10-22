@@ -1,0 +1,206 @@
+---
+title: "Lab 10 - SQL"
+output: tufte::tufte_html
+link-citations: yes
+author: liyongsh@usc.edu
+---
+
+
+
+```{r}
+# install.packages(c("RSQLite", "DBI"))
+library(RSQLite)
+library(DBI)
+# Initialize a temporary in memory database
+con <- dbConnect(SQLite(), ":memory:")
+# Download tables
+actor <- read.csv("actor.csv")
+rental <- read.csv("rental.csv")
+customer <- read.csv("customer.csv")
+payment <- read.csv("payment_p2007_01.csv")
+# Copy data.frames to database
+dbWriteTable(con, "actor", actor)
+dbWriteTable(con, "rental", rental)
+dbWriteTable(con, "customer", customer)
+dbWriteTable(con, "payment", payment)
+```
+
+```{r}
+dbListTables(con)
+```
+
+TIP: Use can use the following QUERY to see the structure of a table
+
+```{sql, connection=con}
+PRAGMA table_info(actor)
+```
+
+SQL references:
+
+https://www.w3schools.com/sql/
+
+# Exercise 1
+
+Retrive the actor ID, first name and last name for all actors using the `actor` table. Sort by last name and then by first name.
+
+```{sql, connection=con}
+SELECT actor_id, first_name, last_name
+FROM actor
+ORDER by last_name, first_name
+```
+
+# Exercise 2
+
+Retrive the actor ID, first name, and last name for actors whose last name equals 'WILLIAMS' or 'DAVIS'.
+
+```{sql, connection=con}
+SELECT actor_id, first_name, last_name
+FROM actor
+WHERE last_name IN ('WILLIAMS', 'DAVIS')
+```
+
+# Exercise 3
+
+Write a query against the `rental` table that returns the IDs of the customers who rented a film on July 5, 2005 (use the rental.rental_date column, and you can use the date() function to ignore the time component). Include a single row for each distinct customer ID. 
+
+```{sql, connection=con}
+SELECT DISTINCT customer_id 
+FROM rental
+WHERE date(rental_date) = '2005-07-05'
+```
+# Exercise 4
+
+## Exercise 4.1
+
+Construct a query that retrives all rows from the `payment` table where the amount is either 1.99, 7.99, 9.99.
+
+```{sql, connection=con}
+SELECT *
+FROM payment
+WHERE amount IN (1.99, 7.99, 9.99)
+```
+
+## Exercise 4.2
+
+Construct a query that retrives all rows from the `payment` table where the amount is greater then 5
+
+```{sql, connection=con}
+SELECT *
+FROM payment
+WHERE amount>5
+```
+
+## Exercise 4.2
+
+Construct a query that retrives all rows from the `payment` table where the amount is greater then 5 and less then 8
+
+```{sql, connection=con}
+SELECT *
+FROM payment
+WHERE amount>5 AND amount<8
+```
+# Exercise 5
+
+Retrive all the payment IDs and their amount from the customers whose last name is 'DAVIS'.
+
+```{sql, connection=con}
+SELECT t1.payment_id,t1.amount
+FROM payment AS t1
+  INNER JOIN customer as t2 ON t1.customer_id = t2.customer_id
+WHERE t2.last_name="DAVIS"
+
+```
+
+# Exercise 6
+
+## Exercise 6.1
+
+Use `COUNT(*)` to count the number of rows in `rental`
+
+```{sql, connection=con}
+SELECT COUNT(*) 
+FROM rental
+```
+
+## Exercise 6.2
+
+Use `COUNT(*)` and `GROUP BY` to count the number of rentals for each `customer_id`
+
+```{sql, connection=con}
+SELECT COUNT(*) as num_rentals, customer_id
+FROM rental
+GROUP BY customer_id
+```
+## Exercise 6.3
+
+Repeat the previous query and sort by the count in descending order
+
+```{sql, connection=con}
+SELECT COUNT(*) AS num_rentals, customer_id
+FROM rental
+GROUP BY customer_id
+ORDER BY num_rentals DESC
+```
+
+## Exercise 6.4
+
+Repeat the previous query but use `HAVING` to only keep the groups with 40 or more.
+
+```{sql, connection=con}
+SELECT COUNT(*) AS num_rentals, customer_id
+FROM rental
+GROUP BY customer_id
+HAVING num_rentals >= 40
+ORDER BY num_rentals DESC
+
+```
+
+# Exercise 7
+
+The following query calculates a number of summary statistics for the payment table using `MAX`, `MIN`, `AVG` and `SUM`
+
+```{sql, connection=con}
+SELECT MAX(amount) as max,
+       MIN(amount) as min,
+       AVG(amount) as avg,
+       SUM(amount) as sum
+FROM payment
+       
+```
+
+## Exercise 7.1
+
+Modify the above query to do those calculations for each `customer_id`
+
+```{sql, connection=con}
+SELECT MAX(amount) as max,
+       MIN(amount) as min,
+       AVG(amount) as avg,
+       SUM(amount) as sum,
+       customer_id
+FROM payment
+GROUP BY customer_id
+```
+## Exercise 7.2
+
+Modify the above query to only keep the `customer_id`s that have more then 5 payments
+
+```{sql, connection=con}
+SELECT MAX(amount) as max,
+       MIN(amount) as min,
+       AVG(amount) as avg,
+       SUM(amount) as sum,
+       COUNT(*) as count,
+       customer_id
+FROM payment
+GROUP BY customer_id
+HAVING COUNT(*)>5
+```
+# Cleanup
+
+Run the following chunk to disconnect from the connection.
+
+```{r}
+# clean up
+dbDisconnect(con)
+```
